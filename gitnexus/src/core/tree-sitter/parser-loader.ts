@@ -161,6 +161,8 @@ const SOURCES: Record<string, GrammarSource> = {
       'and is not installed (or its native binding failed to build).',
   },
   // OCaml has two grammars: ocaml (.ml) and ocaml_interface (.mli)
+  // The `:mli` suffix follows the same convention as TypeScript's `:tsx` key —
+  // both use the file extension as the disambiguating suffix.
   [SupportedLanguages.OCaml]: {
     load: () => _require('tree-sitter-ocaml').ocaml,
     unavailableNote:

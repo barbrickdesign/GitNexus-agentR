@@ -62,7 +62,7 @@ function extractOCamlParameters(node: SyntaxNode): ParameterInfo[] {
       const nameNode = child.childForFieldName?.('pattern') ?? child.firstNamedChild;
       const typePat = child.childForFieldName?.('type');
       params.push({
-        name: nameNode?.text ?? `_${i}`,
+        name: nameNode?.text ?? `param${i}`,
         type: typePat ? typePat.text?.trim() ?? null : null,
         rawType: typePat?.text?.trim() ?? null,
         isOptional: false,
@@ -72,7 +72,7 @@ function extractOCamlParameters(node: SyntaxNode): ParameterInfo[] {
       const labelNode = child.childForFieldName?.('label') ?? child.firstNamedChild;
       const typePat = child.childForFieldName?.('type');
       params.push({
-        name: labelNode?.text ?? `_${i}`,
+        name: labelNode?.text ?? `param${i}`,
         type: typePat ? typePat.text?.trim() ?? null : null,
         rawType: typePat?.text?.trim() ?? null,
         isOptional: child.type === 'optional_argument',

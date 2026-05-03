@@ -120,9 +120,15 @@ function nameSimilarity(a: string, b: string): number {
   // Exact substring
   if (aLow.includes(bLow) || bLow.includes(aLow)) return 0.7;
 
-  // Common word fragments (split by camelCase / snake_case)
-  const aWords = aLow.split(/[_\-A-Z]/).filter(Boolean);
-  const bWords = bLow.split(/[_\-A-Z]/).filter(Boolean);
+  // Common word fragments — split camelCase before lowercasing to avoid missing boundaries
+  const toWords = (s: string): string[] =>
+    s
+      .replace(/([A-Z])/g, '_$1')
+      .toLowerCase()
+      .split(/[_\-]/)
+      .filter((w) => w.length > 0);
+  const aWords = toWords(a);
+  const bWords = toWords(b);
   const commonWords = aWords.filter((w) => w.length > 3 && bWords.includes(w));
   if (commonWords.length > 0) return 0.4 + 0.1 * Math.min(commonWords.length, 3);
 
@@ -336,31 +342,31 @@ export async function discoverLinkChains(
 
   for (let i = 0; i < repoNames.length; i++) {
     for (let j = i + 1; j < repoNames.length; j++) {
-      const repoA = repoNames[i]!;
-      const repoB = repoNames[j]!;
-      const symbolsA = repoSymbolMap.get(repoA) ?? [];
-      const symbolsB = repoSymbolMap.get(repoB) ?? [];
+      const firstRepo = repoNames[i]!;
+      const secondRepo = repoNames[j]!;
+      const symbolsFirst = repoSymbolMap.get(firstRepo) ?? [];
+      const symbolsSecond = repoSymbolMap.get(secondRepo) ?? [];
 
-      // A as provider, B as consumer
-      const chainsAtoB = findLinksBetweenRepos(
-        repoA,
-        symbolsA,
-        repoB,
-        symbolsB,
+      // first as provider, second as consumer
+      const chainsFirstToSecond = findLinksBetweenRepos(
+        firstRepo,
+        symbolsFirst,
+        secondRepo,
+        symbolsSecond,
         focus,
         minConfidence,
       );
-      // B as provider, A as consumer
-      const chainsBtoA = findLinksBetweenRepos(
-        repoB,
-        symbolsB,
-        repoA,
-        symbolsA,
+      // second as provider, first as consumer
+      const chainsSecondToFirst = findLinksBetweenRepos(
+        secondRepo,
+        symbolsSecond,
+        firstRepo,
+        symbolsFirst,
         focus,
         minConfidence,
       );
 
-      allChains.push(...chainsAtoB, ...chainsBtoA);
+      allChains.push(...chainsFirstToSecond, ...chainsSecondToFirst);
     }
   }
 
