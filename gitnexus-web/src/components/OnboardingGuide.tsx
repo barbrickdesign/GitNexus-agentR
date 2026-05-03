@@ -226,12 +226,12 @@ export const OnboardingGuide = ({ isPolling }: OnboardingGuideProps) => {
             </span>
           </div>
           <h2 className="text-lg leading-snug font-semibold text-text-primary">
-            Start your local server
+            Connect to your local server
           </h2>
           <p className="mx-auto mt-1 max-w-xs text-sm leading-relaxed text-text-secondary">
             {isDev
               ? 'Fire up the Express backend in a separate terminal to unlock the full graph.'
-              : 'One command is all it takes. The browser connects automatically.'}
+              : 'Run one command and the browser connects automatically — no configuration needed.'}
           </p>
         </div>
       </div>

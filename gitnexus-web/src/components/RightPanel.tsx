@@ -16,6 +16,7 @@ import { ToolCallCard } from './ToolCallCard';
 import { isProviderConfigured } from '../core/llm/settings-service';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { ProcessesPanel } from './ProcessesPanel';
+import { GitNexusLogo } from './GitNexusLogo';
 export const RightPanel = () => {
   const {
     isRightPanelOpen,
@@ -239,9 +240,6 @@ export const RightPanel = () => {
           >
             <GitBranch className="h-3.5 w-3.5" />
             <span>Processes</span>
-            <span className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-              NEW
-            </span>
           </button>
         </div>
 
@@ -293,8 +291,8 @@ export const RightPanel = () => {
           <div ref={scrollContainerRef} className="scrollbar-thin flex-1 overflow-y-auto p-4">
             {chatMessages.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center px-4 text-center">
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-node-interface text-2xl shadow-glow">
-                  🧠
+                <div className="mb-4">
+                  <GitNexusLogo size={56} />
                 </div>
                 <h3 className="mb-2 text-base font-medium">Ask me anything</h3>
                 <p className="mb-5 text-sm leading-relaxed text-text-secondary">

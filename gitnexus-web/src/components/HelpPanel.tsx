@@ -39,76 +39,55 @@ const nodeColors = [
   { color: '#6366f1', label: 'Folder', desc: 'Directory nodes' },
 ];
 
-const getStatusItems = (nodeCount: number, edgeCount: number) => [
-  {
-    badge: (
-      <span
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: '50%',
-          background: '#34d399',
-          display: 'inline-block',
-          flexShrink: 0,
-        }}
-      />
-    ),
-    title: 'Ready',
-    desc: 'Graph is fully loaded and interactive',
-  },
-  {
-    badge: (
-      <span style={{ fontSize: 12, fontWeight: 500, color: '#a78bfa', flexShrink: 0 }}>
-        {nodeCount}
-      </span>
-    ),
-    title: 'Nodes count',
-    desc: 'Total files and symbols in the graph',
-  },
-  {
-    badge: (
-      <span style={{ fontSize: 12, fontWeight: 500, color: '#60a5fa', flexShrink: 0 }}>
-        {edgeCount}
-      </span>
-    ),
-    title: 'Edges count',
-    desc: 'Import / dependency connections',
-  },
-  {
-    badge: (
-      <span
-        style={{
-          fontSize: 11,
-          fontWeight: 500,
-          color: '#34d399',
-          flexShrink: 0,
-          whiteSpace: 'nowrap',
-        }}
-      >
-        Semantic Ready
-      </span>
-    ),
-    title: 'AI index status',
-    desc: 'Repo is fully indexed for AI queries',
-  },
-  // { badge: <span style={{ fontSize: 11, fontWeight: 500, color: '#9ca3af', flexShrink: 0 }}>typescript</span>, title: 'Language', desc: 'Primary language detected in the repo' },
-];
+// ── Section label ─────────────────────────────────────────────────────────────
 
-const kbdStyle: React.CSSProperties = {
-  fontSize: 11,
-  background: 'rgba(255,255,255,0.08)',
-  borderRadius: 4,
-  padding: '2px 8px',
-  color: '#e2e2e8',
-  fontFamily: 'monospace',
-  border: '0.5px solid rgba(255,255,255,0.12)',
-  whiteSpace: 'nowrap',
-};
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mb-1 text-[11px] font-medium tracking-widest text-text-muted uppercase">
+      {children}
+    </p>
+  );
+}
 
-const kbdWinStyle: React.CSSProperties = {
-  ...kbdStyle,
-  color: '#93c5fd',
-};
+// ── Info card ─────────────────────────────────────────────────────────────────
+
+function InfoCard({
+  accent,
+  title,
+  children,
+}: {
+  accent?: string;
+  title?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="rounded-xl bg-white/[0.04] px-3.5 py-3"
+      style={accent ? { borderLeft: `2px solid ${accent}` } : undefined}
+    >
+      {title && <p className="mb-1 text-[13px] font-medium text-text-primary">{title}</p>}
+      <div className="text-xs leading-relaxed text-text-secondary">{children}</div>
+    </div>
+  );
+}
+
+// ── Kbd ───────────────────────────────────────────────────────────────────────
+
+function Kbd({ children, platform }: { children: React.ReactNode; platform?: 'mac' | 'win' }) {
+  return (
+    <kbd
+      className={`rounded border px-2 py-0.5 font-mono text-[11px] whitespace-nowrap ${
+        platform === 'win'
+          ? 'border-blue-500/20 bg-white/[0.08] text-blue-300'
+          : 'border-white/10 bg-white/[0.08] text-text-primary'
+      }`}
+    >
+      {children}
+    </kbd>
+  );
+}
+
+// ── TabContent ────────────────────────────────────────────────────────────────
 
 function TabContent({
   active,
@@ -121,335 +100,155 @@ function TabContent({
 }) {
   if (active === 'overview')
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <p
-          style={{
-            fontSize: 11,
-            color: '#6b7280',
-            margin: '0 0 4px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}
-        >
-          Getting started
-        </p>
+      <div className="flex flex-col gap-3">
+        <SectionLabel>Getting started</SectionLabel>
 
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.04)',
-            borderRadius: 10,
-            padding: '12px 14px',
-            borderLeft: '2px solid #a78bfa',
-          }}
-        >
-          <p style={{ fontSize: 13, fontWeight: 500, color: '#e2e2e8', margin: '0 0 4px' }}>
-            What is GitNexus?
-          </p>
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
-            An interactive graph explorer for your codebase. Every file, function, and import
-            becomes a node you can explore, query, and navigate visually.
-          </p>
-        </div>
+        <InfoCard accent="#a78bfa" title="What is GitNexus?">
+          An interactive graph explorer for your codebase. Every file, function, and import becomes
+          a node you can explore, query, and navigate visually.
+        </InfoCard>
 
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.04)',
-            borderRadius: 10,
-            padding: '12px 14px',
-            borderLeft: '2px solid #34d399',
-          }}
-        >
-          <p style={{ fontSize: 13, fontWeight: 500, color: '#e2e2e8', margin: '0 0 4px' }}>
-            Your current repo
-          </p>
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
-            Loaded: <span style={{ color: '#a78bfa', fontFamily: 'monospace' }}></span> {nodeCount}{' '}
-            nodes · {edgeCount} edges
-          </p>
-        </div>
+        <InfoCard accent="#34d399" title="Your current repo">
+          <span className="font-mono text-accent">{nodeCount}</span> nodes ·{' '}
+          <span className="font-mono text-accent">{edgeCount}</span> edges loaded.
+        </InfoCard>
 
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.04)',
-            borderRadius: 10,
-            padding: '12px 14px',
-            borderLeft: '2px solid #60a5fa',
-          }}
-        >
-          <p style={{ fontSize: 13, fontWeight: 500, color: '#e2e2e8', margin: '0 0 4px' }}>
-            Three ways to explore
-          </p>
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
-            <strong style={{ color: '#e2e2e8', fontWeight: 500 }}>1.</strong> Click nodes to inspect
-            <br />
-            <strong style={{ color: '#e2e2e8', fontWeight: 500 }}>2.</strong> Search by name or type
-            <br />
-            <strong style={{ color: '#e2e2e8', fontWeight: 500 }}>3.</strong> Ask Nexus AI a natural
-            language question
-          </p>
-        </div>
+        <InfoCard accent="#60a5fa" title="Three ways to explore">
+          <strong className="font-medium text-text-primary">1.</strong> Click nodes to inspect
+          <br />
+          <strong className="font-medium text-text-primary">2.</strong> Search by name or type
+          <br />
+          <strong className="font-medium text-text-primary">3.</strong> Ask Nexus AI a natural
+          language question
+        </InfoCard>
 
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.04)',
-            borderRadius: 10,
-            padding: '12px 14px',
-            borderLeft: '2px solid #fbbf24',
-          }}
-        >
-          <p style={{ fontSize: 13, fontWeight: 500, color: '#e2e2e8', margin: '0 0 4px' }}>
-            Navigation
-          </p>
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
-            · Scroll to zoom <br />
-            · Click and drag to pan <br />· Double-click a node to focus its subgraph
-          </p>
-        </div>
+        <InfoCard accent="#fbbf24" title="Navigation">
+          · Scroll to zoom
+          <br />
+          · Click and drag to pan
+          <br />· Double-click a node to focus its subgraph
+        </InfoCard>
       </div>
     );
 
   if (active === 'graph')
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <p
-          style={{
-            fontSize: 11,
-            color: '#6b7280',
-            margin: '0 0 4px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}
-        >
-          Node color legend
-        </p>
+      <div className="flex flex-col gap-3">
+        <SectionLabel>Node color legend</SectionLabel>
 
         {nodeColors.map(({ color, label, desc }) => (
-          <div key={label} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <div key={label} className="flex items-start gap-2.5">
             <span
-              style={{
-                width: 12,
-                height: 12,
-                borderRadius: '50%',
-                background: color,
-                flexShrink: 0,
-                marginTop: 2,
-              }}
+              className="mt-1 h-3 w-3 shrink-0 rounded-full"
+              style={{ backgroundColor: color }}
             />
             <div>
-              <p style={{ fontSize: 12, fontWeight: 500, color: '#e2e2e8', margin: '0 0 2px' }}>
-                {label} nodes
-              </p>
-              <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>{desc}</p>
+              <p className="mb-0.5 text-xs font-medium text-text-primary">{label} nodes</p>
+              <p className="text-xs text-text-secondary">{desc}</p>
             </div>
           </div>
         ))}
 
-        <div style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)', margin: '4px 0' }} />
+        <hr className="border-white/[0.08]" />
 
-        <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
-          Node <strong style={{ color: '#e2e2e8', fontWeight: 500 }}>size</strong> reflects
-          connection count — larger nodes are depended on by more files. Edges point from importer →
-          imported.
+        <p className="text-xs leading-relaxed text-text-secondary">
+          Node <strong className="font-medium text-text-primary">size</strong> reflects connection
+          count — larger nodes are depended on by more files. Edges point from importer → imported.
         </p>
 
-        <div
-          style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: '10px 14px' }}
-        >
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
-            Click any node to open its detail panel — showing imports, exports, and reverse
-            dependencies.
-          </p>
-        </div>
+        <InfoCard>
+          Click any node to open its detail panel — showing imports, exports, and reverse
+          dependencies.
+        </InfoCard>
       </div>
     );
 
   if (active === 'search')
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <p
-          style={{
-            fontSize: 11,
-            color: '#6b7280',
-            margin: '0 0 4px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}
-        >
-          Search & filter
-        </p>
+      <div className="flex flex-col gap-3">
+        <SectionLabel>Search & filter</SectionLabel>
 
-        <div
-          style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: '12px 14px' }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <kbd style={kbdStyle}>⌘K</kbd>/<kbd style={kbdStyle}>Ctrl K</kbd>
-            <p style={{ fontSize: 12, fontWeight: 500, color: '#e2e2e8', margin: 0 }}>
-              Search nodes
-            </p>
+        <InfoCard title="Search nodes">
+          <div className="mb-2 flex items-center gap-2">
+            <Kbd>⌘K</Kbd>
+            <span className="text-text-muted">/</span>
+            <Kbd platform="win">Ctrl K</Kbd>
           </div>
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
-            Search by filename, function name, or import path. Matching nodes are highlighted live
-            in the graph.
-          </p>
-        </div>
+          Search by filename, function name, or import path. Matching nodes are highlighted live in
+          the graph.
+        </InfoCard>
 
-        <div
-          style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: '12px 14px' }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <Filter style={{ width: 14, height: 14, color: '#a78bfa', flexShrink: 0 }} />
-            <p style={{ fontSize: 12, fontWeight: 500, color: '#e2e2e8', margin: 0 }}>
-              Filter panel
-            </p>
+        <InfoCard title="Filter panel">
+          <div className="mb-2 flex items-center gap-2">
+            <Filter className="h-3.5 w-3.5 text-accent" />
           </div>
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
-            Use the filter icon in the left sidebar to isolate specific node types, hide leaf nodes,
-            or focus on a depth range from a selected root.
-          </p>
-        </div>
+          Use the filter icon in the left sidebar to isolate specific node types, hide leaf nodes,
+          or focus on a depth range from a selected root.
+        </InfoCard>
 
-        <div
-          style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: '12px 14px' }}
-        >
-          <p style={{ fontSize: 12, fontWeight: 500, color: '#e2e2e8', margin: '0 0 6px' }}>
-            Search syntax
-          </p>
+        <InfoCard title="Search syntax">
           {[
             { query: 'auth', hint: 'match by name fragment' },
             { query: './utils/', hint: 'match by path prefix' },
             { query: 'type:config', hint: 'filter by node type' },
           ].map(({ query, hint }) => (
-            <div
-              key={query}
-              style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}
-            >
-              <code
-                style={{
-                  fontSize: 11,
-                  color: '#a78bfa',
-                  background: 'rgba(167,139,250,0.1)',
-                  borderRadius: 4,
-                  padding: '1px 6px',
-                  fontFamily: 'monospace',
-                  flexShrink: 0,
-                }}
-              >
+            <div key={query} className="mb-1 flex items-baseline gap-2">
+              <code className="shrink-0 rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[11px] text-accent">
                 {query}
               </code>
-              <span style={{ fontSize: 12, color: '#6b7280' }}>{hint}</span>
+              <span className="text-text-muted">{hint}</span>
             </div>
           ))}
-        </div>
+        </InfoCard>
       </div>
     );
 
   if (active === 'ai')
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <p
-          style={{
-            fontSize: 11,
-            color: '#6b7280',
-            margin: '0 0 4px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}
-        >
-          Nexus AI
-        </p>
+      <div className="flex flex-col gap-3">
+        <SectionLabel>Nexus AI</SectionLabel>
 
-        <div
-          style={{
-            background: 'rgba(167,139,250,0.08)',
-            border: '0.5px solid rgba(167,139,250,0.25)',
-            borderRadius: 10,
-            padding: '12px 14px',
-          }}
-        >
-          <p style={{ fontSize: 12, fontWeight: 500, color: '#a78bfa', margin: '0 0 4px' }}>
-            ✓ Semantic Ready
-          </p>
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.6 }}>
+        <div className="rounded-xl border border-accent/25 bg-accent/8 px-3.5 py-3">
+          <p className="mb-1 text-xs font-medium text-accent">✓ Semantic Ready</p>
+          <p className="text-xs leading-relaxed text-text-secondary">
             Your repo is indexed and ready for semantic queries. Nexus AI understands code structure
             and relationships, not just file names.
           </p>
         </div>
 
-        <p style={{ fontSize: 12, color: '#9ca3af', margin: '4px 0 2px' }}>Try asking:</p>
+        <p className="text-xs text-text-secondary">Try asking:</p>
         {[
           '"Which files depend on the auth module?"',
           '"Find circular dependencies in this repo"',
           '"What are the most connected components?"',
           '"Show me all files that import useEffect"',
         ].map((q) => (
-          <div
-            key={q}
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              borderRadius: 8,
-              padding: '8px 12px',
-              fontSize: 12,
-              color: '#e2e2e8',
-              fontStyle: 'italic',
-            }}
-          >
+          <div key={q} className="rounded-lg bg-white/[0.04] px-3 py-2 text-xs italic text-text-primary">
             {q}
           </div>
         ))}
 
-        <div style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)', margin: '4px 0' }} />
+        <hr className="border-white/[0.08]" />
 
-        <p style={{ fontSize: 12, color: '#6b7280', margin: 0, lineHeight: 1.6 }}>
-          Open the prompt via the <span style={{ color: '#e2e2e8' }}>Nexus AI</span> button
-          (top-right).
+        <p className="text-xs leading-relaxed text-text-secondary">
+          Open the prompt via the{' '}
+          <span className="font-medium text-text-primary">Nexus AI</span> button (top-right).
         </p>
       </div>
     );
 
   if (active === 'shortcuts')
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <div className="flex flex-col">
         {/* Column headers */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 80px 88px',
-            gap: 8,
-            padding: '0 0 8px',
-            borderBottom: '0.5px solid rgba(255,255,255,0.08)',
-            marginBottom: 4,
-          }}
-        >
-          <span
-            style={{
-              fontSize: 11,
-              color: '#6b7280',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-            }}
-          >
+        <div className="mb-1 grid grid-cols-[1fr_80px_88px] gap-2 border-b border-white/[0.08] pb-2">
+          <span className="text-[11px] font-medium tracking-widest text-text-muted uppercase">
             Action
           </span>
-          <span
-            style={{
-              fontSize: 11,
-              color: '#6b7280',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              textAlign: 'center',
-            }}
-          >
+          <span className="text-center text-[11px] font-medium tracking-widest text-text-muted uppercase">
             Mac
           </span>
-          <span
-            style={{
-              fontSize: 11,
-              color: '#93c5fd',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              textAlign: 'center',
-            }}
-          >
+          <span className="text-center text-[11px] font-medium tracking-widest text-blue-300/70 uppercase">
             Windows
           </span>
         </div>
@@ -457,22 +256,16 @@ function TabContent({
         {shortcuts.map(({ label, mac, win }, i) => (
           <div
             key={label}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 80px 88px',
-              gap: 8,
-              alignItems: 'center',
-              padding: '8px 0',
-              borderBottom:
-                i < shortcuts.length - 1 ? '0.5px solid rgba(255,255,255,0.05)' : 'none',
-            }}
+            className={`grid grid-cols-[1fr_80px_88px] items-center gap-2 py-2 ${
+              i < shortcuts.length - 1 ? 'border-b border-white/[0.05]' : ''
+            }`}
           >
-            <span style={{ fontSize: 12, color: '#9ca3af' }}>{label}</span>
-            <span style={{ display: 'flex', justifyContent: 'center' }}>
-              <kbd style={kbdStyle}>{mac}</kbd>
+            <span className="text-xs text-text-secondary">{label}</span>
+            <span className="flex justify-center">
+              <Kbd>{mac}</Kbd>
             </span>
-            <span style={{ display: 'flex', justifyContent: 'center' }}>
-              <kbd style={kbdWinStyle}>{win}</kbd>
+            <span className="flex justify-center">
+              <Kbd platform="win">{win}</Kbd>
             </span>
           </div>
         ))}
@@ -481,36 +274,39 @@ function TabContent({
 
   if (active === 'status')
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <p
-          style={{
-            fontSize: 11,
-            color: '#6b7280',
-            margin: '0 0 4px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-          }}
-        >
-          Status bar explained
-        </p>
-        {getStatusItems(nodeCount, edgeCount).map(({ badge, title, desc }) => (
+      <div className="flex flex-col gap-2">
+        <SectionLabel>Status bar explained</SectionLabel>
+
+        {[
+          {
+            badge: <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />,
+            title: 'Ready',
+            desc: 'Graph is fully loaded and interactive',
+          },
+          {
+            badge: <span className="shrink-0 font-mono text-xs font-medium text-accent">{nodeCount}</span>,
+            title: 'Nodes count',
+            desc: 'Total files and symbols in the graph',
+          },
+          {
+            badge: <span className="shrink-0 font-mono text-xs font-medium text-node-file">{edgeCount}</span>,
+            title: 'Edges count',
+            desc: 'Import / dependency connections',
+          },
+          {
+            badge: <span className="shrink-0 whitespace-nowrap font-mono text-[11px] font-medium text-emerald-400">Semantic Ready</span>,
+            title: 'AI index status',
+            desc: 'Repo is fully indexed for AI queries',
+          },
+        ].map(({ badge, title, desc }) => (
           <div
             key={title}
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              borderRadius: 10,
-              padding: '10px 14px',
-              display: 'flex',
-              gap: 12,
-              alignItems: 'center',
-            }}
+            className="flex items-center gap-3 rounded-xl bg-white/[0.04] px-3.5 py-2.5"
           >
             {badge}
             <div>
-              <p style={{ fontSize: 12, fontWeight: 500, color: '#e2e2e8', margin: '0 0 2px' }}>
-                {title}
-              </p>
-              <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>{desc}</p>
+              <p className="mb-0.5 text-xs font-medium text-text-primary">{title}</p>
+              <p className="text-xs text-text-secondary">{desc}</p>
             </div>
           </div>
         ))}
@@ -526,154 +322,53 @@ export const HelpPanel = ({ isOpen, onClose, nodeCount, edgeCount }: HelpPanelPr
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'rgba(0,0,0,0.6)',
-          backdropFilter: 'blur(4px)',
-        }}
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
+        aria-hidden="true"
       />
 
       {/* Panel */}
-      <div
-        style={{
-          position: 'relative',
-          background: '#12121a',
-          border: '0.5px solid rgba(255,255,255,0.12)',
-          borderRadius: 16,
-          boxShadow: '0 25px 60px rgba(0,0,0,0.7)',
-          width: '100%',
-          maxWidth: 680,
-          margin: '0 16px',
-          height: '60vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          fontFamily: 'var(--font-mono, monospace)',
-        }}
-      >
+      <div className="relative mx-4 flex h-[60vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#12121a] font-sans shadow-[0_25px_60px_rgba(0,0,0,0.7)]">
         {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '16px 20px',
-            borderBottom: '0.5px solid rgba(255,255,255,0.08)',
-            background: 'rgba(255,255,255,0.02)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'rgba(167,139,250,0.15)',
-                borderRadius: 12,
-              }}
-            >
-              <HelpCircle style={{ width: 20, height: 20, color: '#a78bfa' }} />
+        <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.02] px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15">
+              <HelpCircle className="h-5 w-5 text-accent" />
             </div>
             <div>
-              <h2 style={{ fontSize: 16, fontWeight: 600, color: '#e2e2e8', margin: 0 }}>
-                Help & Reference
-              </h2>
-              <p style={{ fontSize: 12, color: '#6b7280', margin: 0 }}>GitNexus — graph explorer</p>
+              <h2 className="text-base font-semibold text-text-primary">Help &amp; Reference</h2>
+              <p className="text-xs text-text-muted">GitNexus — graph explorer</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            style={{
-              padding: 8,
-              color: '#6b7280',
-              background: 'transparent',
-              border: 'none',
-              borderRadius: 8,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'color 0.15s',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#e2e2e8')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#6b7280')}
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-white/[0.06] hover:text-text-primary"
+            aria-label="Close help panel"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Body: sidebar + content */}
-        <div
-          style={{ display: 'grid', gridTemplateColumns: '168px 1fr', flex: 1, overflow: 'hidden' }}
-        >
+        <div className="grid min-h-0 flex-1 grid-cols-[168px_1fr] overflow-hidden">
           {/* Sidebar nav */}
-          <div
-            style={{
-              borderRight: '0.5px solid rgba(255,255,255,0.08)',
-              padding: '12px 8px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-            }}
-          >
+          <div className="flex flex-col gap-0.5 border-r border-white/[0.08] p-3">
             {tabs.map(({ id, label, icon }) => {
               const isActive = active === id;
               return (
                 <button
                   key={id}
                   onClick={() => setActive(id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    textAlign: 'left',
-                    background: isActive ? 'rgba(167,139,250,0.12)' : 'transparent',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 10px',
-                    fontSize: 12,
-                    fontFamily: 'inherit',
-                    color: isActive ? '#a78bfa' : '#9ca3af',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                    width: '100%',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = '#e2e2e8';
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = '#9ca3af';
-                      e.currentTarget.style.background = 'transparent';
-                    }
-                  }}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-all ${
+                    isActive
+                      ? 'bg-accent/12 text-accent'
+                      : 'text-text-secondary hover:bg-white/[0.04] hover:text-text-primary'
+                  }`}
                 >
-                  <span
-                    style={{
-                      color: isActive ? '#a78bfa' : '#6b7280',
-                      display: 'flex',
-                      flexShrink: 0,
-                    }}
-                  >
+                  <span className={`flex shrink-0 ${isActive ? 'text-accent' : 'text-text-muted'}`}>
                     {icon}
                   </span>
                   {label}
@@ -683,32 +378,23 @@ export const HelpPanel = ({ isOpen, onClose, nodeCount, edgeCount }: HelpPanelPr
           </div>
 
           {/* Content pane */}
-          <div style={{ padding: '20px', overflowY: 'auto' }}>
+          <div className="scrollbar-thin overflow-y-auto p-5">
             <TabContent active={active} nodeCount={nodeCount} edgeCount={edgeCount} />
           </div>
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '10px 20px',
-            borderTop: '0.5px solid rgba(255,255,255,0.08)',
-            background: 'rgba(255,255,255,0.01)',
-          }}
-        >
-          <span style={{ fontSize: 11, color: '#4b5563' }}>
+        <div className="flex items-center justify-between border-t border-white/[0.08] bg-white/[0.01] px-5 py-2.5">
+          <span className="text-[11px] text-text-muted">
             GitNexus — open source codebase graph explorer
           </span>
           <a
             href="https://github.com/abhigyanpatwari/GitNexus"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ fontSize: 11, color: '#a78bfa', textDecoration: 'none' }}
+            className="text-[11px] text-accent transition-colors hover:text-accent/80"
           >
-            Docs & GitHub ↗
+            Docs &amp; GitHub ↗
           </a>
         </div>
       </div>
