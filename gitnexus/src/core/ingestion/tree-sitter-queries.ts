@@ -1481,6 +1481,81 @@ export const DART_QUERIES = `
       (type_identifier) @heritage.trait))) @heritage
 `;
 
+// ── OCaml queries ─────────────────────────────────────────────────────────────
+// Covers .ml (implementation) and .mli (interface/signature) files.
+// tree-sitter-ocaml v0.24.x grammar.
+export const OCAML_QUERIES = `
+; ── Value definitions: let foo = ... / let rec foo x = ... ──────────────────
+(value_definition
+  (let_binding
+    pattern: (value_name) @name)) @definition.function
+
+; ── Type definitions: type t = ... ──────────────────────────────────────────
+(type_definition
+  (type_binding
+    name: (type_constr_name) @name)) @definition.type
+
+; ── Module definitions: module M = struct ... end ───────────────────────────
+(module_definition
+  (module_binding
+    name: (module_name) @name)) @definition.module
+
+; ── Module type definitions: module type S = sig ... end ────────────────────
+(module_type_definition
+  (module_type_binding
+    name: (module_type_name) @name)) @definition.interface
+
+; ── Class definitions: class c = object ... end ─────────────────────────────
+(class_definition
+  (class_binding
+    name: (class_name) @name)) @definition.class
+
+; ── Method definitions (inside class bodies) ─────────────────────────────────
+(method_definition
+  name: (method_name) @name) @definition.method
+
+; ── External declarations: external foo : (type) = "c_name" ─────────────────
+(external
+  (value_name) @name) @definition.function
+
+; ── Exception definitions ─────────────────────────────────────────────────────
+(exception_definition
+  (variant_constructor
+    (constructor_name) @name)) @definition.class
+
+; ── Value descriptions (.mli): val foo : int -> int ─────────────────────────
+(value_description
+  (value_name) @name) @definition.function
+
+; ── Module declarations (.mli): module M : sig ... end ──────────────────────
+(module_declaration
+  name: (module_name) @name) @definition.module
+
+; ── Open statements: open Foo / open Foo.Bar ─────────────────────────────────
+(open_statement
+  (module_path) @import.source) @import
+
+; ── Include statements: include Foo ─────────────────────────────────────────
+(include_statement
+  (module_path) @import.source) @import
+
+; ── Function calls: foo arg, Mod.foo arg ─────────────────────────────────────
+(application_expression
+  function: (value_path
+    (value_name) @call.name)) @call
+
+(application_expression
+  function: (value_name) @call.name) @call
+
+; ── Constructor calls: Foo.Bar args ───────────────────────────────────────────
+(application_expression
+  function: (constructor_path
+    (constructor_name) @call.name)) @call
+
+(application_expression
+  function: (constructor_name) @call.name) @call
+`;
+
 import { SupportedLanguages } from 'gitnexus-shared';
 
 export const LANGUAGE_QUERIES: Record<SupportedLanguages, string> = {
@@ -1500,4 +1575,5 @@ export const LANGUAGE_QUERIES: Record<SupportedLanguages, string> = {
   [SupportedLanguages.Dart]: DART_QUERIES,
   [SupportedLanguages.Vue]: TYPESCRIPT_QUERIES, // Vue <script> blocks are parsed as TypeScript
   [SupportedLanguages.Cobol]: '', // Standalone regex processor — no tree-sitter queries
+  [SupportedLanguages.OCaml]: OCAML_QUERIES,
 };

@@ -72,6 +72,12 @@ function getNextStepHint(toolName: string, args: Record<string, any> | undefined
     case 'overview':
       return `\n\n---\n**Next:** To drill into an area, READ gitnexus://repo/${repoPath}/cluster/{name}. To see execution flows, READ gitnexus://repo/${repoPath}/processes.`;
 
+    case 'api_impact':
+      return `\n\n---\n**Next:** Run impact({target: "<handler>", direction: "upstream"${repoParam}}) to trace the full blast radius to callers.`;
+
+    case 'link_chains':
+      return `\n\n---\n**Next:** Copy an \`agentPrompt\` from any high-confidence link and paste it to a GitHub Copilot agent in the consumer repository. Use context({name: "<providerSymbol>"${repoParam}}) first to understand the provider's full interface.`;
+
     default:
       return '';
   }

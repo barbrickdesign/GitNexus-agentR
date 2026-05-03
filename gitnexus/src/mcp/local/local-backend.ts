@@ -647,6 +647,10 @@ export class LocalBackend {
       return this.listRepos();
     }
 
+    if (method === 'link_chains') {
+      return this.linkChains(params || {});
+    }
+
     if (method.startsWith('group_')) {
       return this.handleGroupTool(method, params || {});
     }
@@ -3849,5 +3853,157 @@ export class LocalBackend {
     this.repos.clear();
     this.contextCache.clear();
     this.initializedRepos.clear();
+  }
+
+  // ─── Link Chains ──────────────────────────────────────────────────────────
+
+  /**
+   * Discover cross-repo link opportunities and generate GitHub agent prompts.
+   *
+   * Queries exported symbols from multiple repos and finds semantic
+   * compatibility between them. Returns ranked link recommendations each
+   * with a ready-to-use GitHub Copilot agent prompt for the integration work.
+   */
+  private async linkChains(params: {
+    group?: string;
+    repos?: string[];
+    maxLinks?: number;
+    minConfidence?: number;
+    focus?: 'all' | 'functions' | 'types' | 'modules';
+  }): Promise<unknown> {
+    const { discoverLinkChains } = await import('../../core/group/link-chains.js');
+
+    await this.refreshRepos();
+
+    let repoHandles: RepoHandle[] = [];
+
+    if (params.group) {
+      // Resolve repos in the named group
+      try {
+        const { loadGroupConfig } = await import('../../core/group/config-parser.js');
+        const { getGroupDir, getDefaultGitnexusDir } = await import('../../core/group/storage.js');
+        const gitnexusDir = getGroupDir(getDefaultGitnexusDir(), params.group);
+        const groupConfig = await loadGroupConfig(gitnexusDir);
+        for (const repoPath of Object.values(groupConfig.repos)) {
+          try {
+            const handle = await this.resolveRepo(repoPath as string);
+            repoHandles.push(handle as RepoHandle);
+          } catch {
+            // Skip repos that aren't indexed yet
+          }
+        }
+      } catch {
+        return {
+          error: `Group "${params.group}" not found. Create it with group_sync({name: "${params.group}"}) or check the group name.`,
+          repos: [],
+          links: [],
+          summary: '',
+          nextSteps: [],
+        };
+      }
+    } else if (params.repos && params.repos.length > 0) {
+      // Explicit list of repo names
+      for (const repoName of params.repos) {
+        try {
+          const handle = await this.resolveRepo(repoName);
+          repoHandles.push(handle as RepoHandle);
+        } catch {
+          // Skip repos not found
+        }
+      }
+    } else {
+      // All indexed repos
+      repoHandles = Array.from(this.repos.values());
+    }
+
+    if (repoHandles.length < 2) {
+      return {
+        repos: repoHandles.map((r) => r.name),
+        links: [],
+        summary:
+          repoHandles.length === 0
+            ? 'No indexed repos found. Run `npx gitnexus analyze` in a repository first.'
+            : `Only one repo found (${repoHandles[0]?.name}). At least two repos are needed to discover link chains.`,
+        nextSteps: [
+          'Index additional repos with `npx gitnexus analyze`',
+          'Use the `repos` parameter to specify which repos to compare',
+          'Or create a group with group_sync() to compare repos in a project group',
+        ],
+      };
+    }
+
+    const port: GroupToolPort = {
+      resolveRepo: (p) => this.resolveRepo(p),
+      impact: (r, p) => this.impact(r as RepoHandle, p),
+      query: (r, p) => this.query(r as RepoHandle, p),
+      impactByUid: (id, uid, d, o) => this.impactByUid(id, uid, d, o),
+      context: (r, p) => this.context(r as RepoHandle, p),
+    };
+    const result = await discoverLinkChains(repoHandles, port, params);
+
+    // Format as readable markdown
+    return this.formatLinkChainsResult(result);
+  }
+
+  private formatLinkChainsResult(result: {
+    repos: string[];
+    links: Array<{
+      linkType: string;
+      confidence: number;
+      provider: { repo: string; symbolName: string; filePath: string; kind: string; description?: string };
+      consumer: { repo: string; symbolName: string; filePath: string; kind: string; description?: string };
+      rationale: string;
+      agentPrompt: string;
+    }>;
+    summary: string;
+    nextSteps: string[];
+  }): string {
+    const lines: string[] = [];
+
+    lines.push(`# Link Chains Analysis`);
+    lines.push(`**Repos analyzed:** ${result.repos.join(', ')}`);
+    lines.push('');
+    lines.push(`## Summary`);
+    lines.push(result.summary);
+    lines.push('');
+
+    if (result.links.length === 0) {
+      lines.push('No link chain opportunities discovered.');
+    } else {
+      lines.push(`## Discovered Links (${result.links.length})`);
+      lines.push('');
+
+      for (let i = 0; i < result.links.length; i++) {
+        const link = result.links[i]!;
+        const confidencePct = (link.confidence * 100).toFixed(0);
+        const badge =
+          link.confidence >= 0.7 ? '🟢 High' : link.confidence >= 0.5 ? '🟡 Medium' : '🔵 Low';
+
+        lines.push(`### ${i + 1}. ${link.provider.symbolName} → ${link.consumer.symbolName}`);
+        lines.push(
+          `**${badge} confidence (${confidencePct}%)** | Type: \`${link.linkType}\` | ${link.provider.repo} → ${link.consumer.repo}`,
+        );
+        lines.push('');
+        lines.push(`**Rationale:** ${link.rationale}`);
+        lines.push('');
+        lines.push('<details>');
+        lines.push('<summary>📋 GitHub Agent Prompt (click to expand)</summary>');
+        lines.push('');
+        lines.push('```');
+        lines.push(link.agentPrompt);
+        lines.push('```');
+        lines.push('</details>');
+        lines.push('');
+      }
+    }
+
+    if (result.nextSteps.length > 0) {
+      lines.push('## Next Steps');
+      for (const step of result.nextSteps) {
+        lines.push(`- ${step}`);
+      }
+    }
+
+    return lines.join('\n');
   }
 }

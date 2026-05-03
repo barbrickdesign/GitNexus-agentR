@@ -547,4 +547,62 @@ WHEN TO USE: After changing group.yaml or re-indexing member repos.`,
       required: ['name'],
     },
   },
+  {
+    name: 'link_chains',
+    description: `Discover cross-repo link opportunities and generate GitHub agent prompts for integration.
+
+WHEN TO USE: Understanding how multiple repos can work together, finding reusable code, identifying duplicate implementations, generating integration roadmaps. Analyzes repos in a group (or all indexed repos) to find semantic compatibility between exported symbols.
+
+WHAT IT RETURNS:
+  - \`links[]\`: ranked list of link chain opportunities, each with:
+    - \`provider\`: the repo/symbol that exports reusable functionality
+    - \`consumer\`: the repo/symbol that would benefit from it
+    - \`linkType\`: 'reuse' | 'extension' | 'replacement' | 'dependency' | 'api-compatibility'
+    - \`confidence\`: 0–1 similarity score
+    - \`rationale\`: explanation of the compatibility
+    - \`agentPrompt\`: ready-to-use GitHub Copilot agent prompt for implementing the integration
+  - \`summary\`: high-level analysis of cross-repo opportunities
+  - \`nextSteps\`: prioritized action items
+
+AFTER THIS: Copy an \`agentPrompt\` from any link and paste it to a GitHub Copilot agent in the consumer repository to implement the integration automatically.`,
+    annotations: READ_ONLY_TOOL_ANNOTATIONS,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        group: {
+          type: 'string',
+          description:
+            'Group name — analyze all repos in this group. Omit to use all indexed repos.',
+        },
+        repos: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            'Specific repo names to compare. Overrides group when provided. Omit for all indexed repos.',
+        },
+        maxLinks: {
+          type: 'number',
+          description: 'Maximum number of link recommendations to return (default: 20)',
+          default: 20,
+          minimum: 1,
+          maximum: 100,
+        },
+        minConfidence: {
+          type: 'number',
+          description: 'Minimum confidence threshold 0–1 (default: 0.4)',
+          default: 0.4,
+          minimum: 0,
+          maximum: 1,
+        },
+        focus: {
+          type: 'string',
+          enum: ['all', 'functions', 'types', 'modules'],
+          description:
+            "Focus area for link discovery: 'all' (default), 'functions', 'types', or 'modules'",
+          default: 'all',
+        },
+      },
+      required: [],
+    },
+  },
 ];

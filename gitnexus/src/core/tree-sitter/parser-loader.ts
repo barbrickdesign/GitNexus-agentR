@@ -160,6 +160,18 @@ const SOURCES: Record<string, GrammarSource> = {
       'Kotlin parsing disabled: `tree-sitter-kotlin` is an optionalDependency ' +
       'and is not installed (or its native binding failed to build).',
   },
+  // OCaml has two grammars: ocaml (.ml) and ocaml_interface (.mli)
+  [SupportedLanguages.OCaml]: {
+    load: () => _require('tree-sitter-ocaml').ocaml,
+    unavailableNote:
+      'OCaml parsing requires `tree-sitter-ocaml`. Check the install and native binding.',
+  },
+  [`${SupportedLanguages.OCaml}:mli`]: {
+    load: () => _require('tree-sitter-ocaml').ocaml_interface,
+    unavailableNote:
+      'OCaml interface parsing requires `tree-sitter-ocaml` (the `ocaml_interface` export). ' +
+      'Check the install and native binding.',
+  },
 };
 
 type LoadResult =
@@ -182,7 +194,9 @@ const logFailure = (key: string, result: LoadResult): void => {
 export const resolveLanguageKey = (language: SupportedLanguages, filePath?: string): string =>
   language === SupportedLanguages.TypeScript && filePath?.endsWith('.tsx')
     ? `${language}:tsx`
-    : language;
+    : language === SupportedLanguages.OCaml && filePath?.endsWith('.mli')
+      ? `${language}:mli`
+      : language;
 
 const loadGrammar = (key: string): LoadResult => {
   const cached = loadCache.get(key);

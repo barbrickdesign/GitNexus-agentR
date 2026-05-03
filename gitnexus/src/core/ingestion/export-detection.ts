@@ -246,3 +246,18 @@ export const rubyExportChecker: ExportChecker = (_node, _name) => true;
 
 /** Dart: public if no leading underscore (convention, same as Python). */
 export const dartExportChecker: ExportChecker = (_node, name) => !name.startsWith('_');
+
+/**
+ * OCaml: convention-based visibility.
+ *
+ * OCaml has no per-symbol `export` keyword. The module system controls
+ * visibility at the module level:
+ *   - In `.ml` files, all top-level bindings are public unless they lack
+ *     a corresponding `val` entry in an `.mli` interface file.
+ *   - In `.mli` files, only explicitly declared `val` and `type` entries
+ *     are public.
+ *
+ * For our purposes: treat names without a leading underscore as exported.
+ * The underscore prefix is the OCaml convention for internal / generated names.
+ */
+export const ocamlExportChecker: ExportChecker = (_node, name) => !name.startsWith('_');
