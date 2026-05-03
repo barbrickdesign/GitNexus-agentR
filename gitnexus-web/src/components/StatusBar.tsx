@@ -53,7 +53,7 @@ export const StatusBar = () => {
           href="https://github.com/abhigyanpatwari/GitNexus"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 transition-colors hover:text-text-secondary"
+          className="flex items-center gap-1.5 transition-colors hover:text-text-primary"
           title="View on GitHub"
         >
           <Github className="h-3 w-3" />
@@ -64,7 +64,7 @@ export const StatusBar = () => {
           href="https://discord.gg/MgJrmsqr62"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 transition-colors hover:text-text-secondary"
+          className="flex items-center gap-1.5 transition-colors hover:text-text-primary"
           title="Join the Discord community"
         >
           <span>Discord</span>
@@ -74,7 +74,7 @@ export const StatusBar = () => {
           href="https://akonlabs.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 transition-colors hover:text-text-secondary"
+          className="flex items-center gap-1.5 transition-colors hover:text-text-primary"
           title="GitNexus Enterprise"
         >
           <span>Enterprise</span>
