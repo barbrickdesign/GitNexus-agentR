@@ -1,4 +1,5 @@
 import type { PipelineProgress } from 'gitnexus-shared';
+import { GitNexusLogo } from './GitNexusLogo';
 
 interface LoadingOverlayProps {
   progress: PipelineProgress;
@@ -13,11 +14,18 @@ export const LoadingOverlay = ({ progress }: LoadingOverlayProps) => {
         <div className="absolute right-1/3 bottom-1/3 h-96 w-96 animate-pulse rounded-full bg-node-interface/10 blur-3xl" />
       </div>
 
-      {/* Pulsing orb */}
-      <div className="relative mb-10">
-        <div className="h-28 w-28 animate-pulse-glow rounded-full bg-gradient-to-br from-accent to-node-interface" />
-        <div className="absolute inset-0 h-28 w-28 rounded-full bg-gradient-to-br from-accent to-node-interface opacity-50 blur-xl" />
+      {/* Logo + pulsing ring */}
+      <div className="relative mb-10 flex items-center justify-center">
+        <div className="absolute h-28 w-28 animate-pulse-glow rounded-full bg-gradient-to-br from-accent/40 to-node-interface/40 blur-2xl" />
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-node-interface shadow-glow">
+          <GitNexusLogo size={48} className="!bg-transparent !shadow-none" />
+        </div>
       </div>
+
+      {/* Brand name */}
+      <p className="mb-6 text-sm font-medium tracking-widest text-text-muted uppercase">
+        GitNexus
+      </p>
 
       {/* Progress bar */}
       <div className="mb-4 w-80">

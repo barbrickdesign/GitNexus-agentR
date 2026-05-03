@@ -12,6 +12,7 @@ import {
   Loader2,
 } from '@/lib/lucide-icons';
 import { useAppState } from '../hooks/useAppState';
+import { GitNexusLogo } from './GitNexusLogo';
 import {
   deleteRepo,
   fetchRepos,
@@ -161,9 +162,7 @@ export const Header = ({
       <div className="flex items-center gap-4">
         {/* Logo */}
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-accent to-node-interface text-sm font-bold text-white shadow-glow">
-            ◇
-          </div>
+          <GitNexusLogo size={28} />
           <span className="text-[15px] font-semibold tracking-tight">GitNexus</span>
         </div>
 
@@ -438,12 +437,12 @@ export const Header = ({
           href="https://github.com/abhigyanpatwari/GitNexus"
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-3.5 py-2 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-purple-500 hover:to-pink-500 hover:shadow-xl"
+          className="group flex items-center gap-2 rounded-lg border border-border-default bg-surface px-3.5 py-2 text-sm font-medium text-text-secondary transition-all duration-200 hover:border-accent/40 hover:bg-hover hover:text-text-primary"
+          title="Star GitNexus on GitHub"
         >
           <Github className="h-4 w-4" />
-          <span className="hidden sm:inline">Star if cool</span>
-          <Star className="h-3.5 w-3.5 transition-all group-hover:fill-yellow-300 group-hover:text-yellow-300" />
-          <span className="hidden sm:inline">✨</span>
+          <span className="hidden sm:inline">GitHub</span>
+          <Star className="h-3.5 w-3.5 transition-all group-hover:fill-yellow-400 group-hover:text-yellow-400" />
         </a>
 
         {/* Stats */}
