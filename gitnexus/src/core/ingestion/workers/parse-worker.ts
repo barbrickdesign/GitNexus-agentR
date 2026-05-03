@@ -44,6 +44,15 @@ let Kotlin: TreeSitterLanguage | null = null;
 try {
   Kotlin = _require('tree-sitter-kotlin');
 } catch {}
+
+// tree-sitter-ocaml provides two grammars: ocaml (.ml) and ocaml_interface (.mli)
+let OcamlML: TreeSitterLanguage | null = null;
+let OcamlMLI: TreeSitterLanguage | null = null;
+try {
+  const OcamlPkg = _require('tree-sitter-ocaml');
+  OcamlML = OcamlPkg.ocaml ?? null;
+  OcamlMLI = OcamlPkg.ocaml_interface ?? null;
+} catch {}
 import { getLanguageFromFilename } from 'gitnexus-shared';
 import {
   FUNCTION_NODE_TYPES,
@@ -322,6 +331,8 @@ const languageMap: Record<string, TreeSitterLanguage> = {
   [SupportedLanguages.Vue]: TypeScript.typescript,
   ...(Dart ? { [SupportedLanguages.Dart]: Dart } : {}),
   ...(Swift ? { [SupportedLanguages.Swift]: Swift } : {}),
+  ...(OcamlML ? { [SupportedLanguages.OCaml]: OcamlML } : {}),
+  ...(OcamlMLI ? { [`${SupportedLanguages.OCaml}:mli`]: OcamlMLI } : {}),
 };
 
 /**
@@ -334,7 +345,9 @@ const isLanguageAvailable = (language: SupportedLanguages, filePath: string): bo
   const key =
     language === SupportedLanguages.TypeScript && filePath.endsWith('.tsx')
       ? `${language}:tsx`
-      : language;
+      : language === SupportedLanguages.OCaml && filePath.endsWith('.mli')
+        ? `${language}:mli`
+        : language;
   return key in languageMap && languageMap[key] != null;
 };
 
@@ -342,7 +355,9 @@ const setLanguage = (language: SupportedLanguages, filePath: string): void => {
   const key =
     language === SupportedLanguages.TypeScript && filePath.endsWith('.tsx')
       ? `${language}:tsx`
-      : language;
+      : language === SupportedLanguages.OCaml && filePath.endsWith('.mli')
+        ? `${language}:mli`
+        : language;
   const lang = languageMap[key];
   if (!lang) throw new Error(`Unsupported language: ${language}`);
   parser.setLanguage(lang);
